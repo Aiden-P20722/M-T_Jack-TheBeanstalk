@@ -3,7 +3,7 @@
 Servo myservo;
 const int buttonPin = 2;
 
-boolean isFlipped;
+bool isFlipped;
 
 void setup() {
   myservo.attach(9);
