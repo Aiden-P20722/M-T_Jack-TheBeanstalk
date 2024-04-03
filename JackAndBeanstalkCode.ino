@@ -1,9 +1,22 @@
-void setup() {
-  // put your setup code here, to run once:
+#include <Servo.h>
 
+Servo myservo;
+const int buttonPin = 2;
+
+boolean isFlipped;
+
+void setup() {
+  myservo.attach(9);
+  pinMode(buttonPin, INPUT);
+
+  isFlipped = false;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  if (digitalRead(buttonPin) == HIGH && !isFlipped) {
+    myservo.write(180)
+    isFlipped = true;
+  } else {
+    myservo.write(0);
+  }
 }
