@@ -13,10 +13,15 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(buttonPin) == HIGH && !isFlipped) {
-    myservo.write(180)
+  ActivateServo(myservo, buttonPin, 180);
+}
+
+// This method allows for any servo to be moved, passing any differences in the servos as parameters.
+void ActivateServo(Servo servo, int inputPin, int angle) {
+  if (digitalRead(inputPin) == HIGH && !isFlipped) {
+    servo.write(angle)
     isFlipped = true;
   } else {
-    myservo.write(0);
+    servo.write(0);
   }
 }
