@@ -3,6 +3,7 @@
 Servo myservo;
 const int buttonPin = 2;
 
+bool canFeFiFoFum; // Boolean that assures players cannot activate the giant stomping early
 bool isFlipped;
 
 void setup() {
@@ -10,6 +11,7 @@ void setup() {
   pinMode(buttonPin, INPUT);
 
   isFlipped = false;
+  canFeFiFoFum = false; // Starts false, make true when jack reaches the giant house
 }
 
 void loop() {
