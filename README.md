@@ -1,0 +1,1 @@
+The coding was created for a cardboard project for our Arts and Entertainment Technologies class. Our task was to retell a fairy tale by incorporating servos, LEDS, copper tape, and more with cardboard. Our main features mainly revolved around servos, as we had multiple cardboard pieces turn around to express emotions or carry the plot.
