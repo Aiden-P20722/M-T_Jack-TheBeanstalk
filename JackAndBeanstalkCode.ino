@@ -27,3 +27,22 @@ void ActivateServo(Servo servo, int inputPin, int angle) {
     servo.write(0);
   }
 }
+
+int sensorVal;
+const int sensorPin=A0;
+const int ledPin=9;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(ledPin,OUTPUT);
+}
+
+void loop() {
+  sensorVal=analogRead(sensorPin);
+  Serial.println(sensorVal);
+  if (sensorBal<=512){
+    digitalWrite(ledPin,HIGH);
+  }else{
+    digitalWrite(ledPin,LOW);
+  }
+}
