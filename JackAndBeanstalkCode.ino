@@ -10,6 +10,10 @@ bool isFlipped;
 int buttonState = 0;
 int prevButtonState = 0;
 
+// Used for piezo sensor
+int sensorVal;
+const int sensorPin = A0;
+
 void setup() {
   myservo.attach(9); // Pin that servo is attached to
   pinMode(buttonPin, INPUT);
@@ -19,8 +23,16 @@ void setup() {
 }
 
 void loop() {
-  //ActivateServo(myservo, buttonPin, 180);
+  // Read the value of the piezo sensor
+  sensorVal=analogRead(sensorPin);
+  Serial.println(sensorVal);
+  if (sensorVal<=512){
+    digitalWrite(ledPin,HIGH);
+  }else{
+    digitalWrite(ledPin,LOW);
+  }
 
+  
   // State change detection
   buttonState = digitalRead(buttonPin);
 
@@ -52,14 +64,4 @@ const int ledPin=9;
 void setup() {
   Serial.begin(9600);
   pinMode(ledPin,OUTPUT);
-}
-
-void loop() {
-  sensorVal=analogRead(sensorPin);
-  Serial.println(sensorVal);
-  if (sensorBal<=512){
-    digitalWrite(ledPin,HIGH);
-  }else{
-    digitalWrite(ledPin,LOW);
-  }
 }
