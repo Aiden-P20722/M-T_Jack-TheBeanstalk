@@ -16,6 +16,7 @@ bool isFlippedC; // cow
 bool isFlippedH; // harp
 bool isFlippedB; // beans
 bool isFlippedG; // giant release
+bool isFlippedJ; // jack in the giant's house
 bool beanStalkUp;
 
 
@@ -39,7 +40,9 @@ int prevButtonStateA = 0;
 int sensorVal;
 const int sensorPin=A0;
 
-const int ledPin=4;
+const int ledPinSlam = 4; // led indicating the table slam should be done
+const int ledPinGiant = 8; // led revealing the giant's silhouette
+const int ledPinHarp = 9; // led for golden shine on harp
 
 void setup() {
   merchantServo.attach(12); // Pin that servo is attached to
@@ -53,35 +56,40 @@ void setup() {
   pinMode(jackButtonPin, INPUT);
   pinMode(axeButtonPin, INPUT);
 
-  pinMode(ledPin,OUTPUT);
+  pinMode(ledPinSlam,OUTPUT);
+  pinMode(ledPinGiant,OUTPUT);
+  pinMode(ledPinHarp,OUTPUT);
 
   isFlippedC = false;
   isFlippedH = false;
-  isFlippedB = false;
+  isFlippedB = true;
   isFlippedG = false;
+  isFlippedJ = false;
 
   canFeFiFoFum = false; // Starts false, make true when jack reaches the giant house
+  beanstalkServo.write(180);
+  familyServo.write(180);
+  merchantServo.write(0);
+  giantServo.write(180);
 
   Serial.begin(9600);
 }
 
 void loop() {
-  // Read the value of the piezo sensor
-  /*
-  sensorVal=analogRead(sensorPin);
-  Serial.println(sensorVal);
-  if (sensorVal<=512){
-    digitalWrite(ledPin,HIGH);
-  }else{
-    digitalWrite(ledPin,LOW);
+  // Check if the table is slammed
+  sensorVal = analogRead(sensorPin);
+
+
+  if(canFeFiFoFum) {
+    digitalWrite(ledPinSlam, HIGH);
+    if(sensorVal != 0) {
+      Serial.println(sensorVal);
+    }
+    if(sensorVal > 18 && !isFlippedG) {
+      digitalWrite(ledPinGiant, HIGH);
+    }
   }
-*/
-  digitalWrite(ledPin,HIGH);
-  
-  if(digitalRead(jackButtonPin) == HIGH) {
-    canFeFiFoFum = true;
-  }
-  //Checks every frame for the cow being placed on the switch
+
   StateChangeDetect();
 }
 
@@ -105,6 +113,7 @@ void StateChangeDetect() {
   buttonStateB = digitalRead(beansButtonPin);
   buttonStateH = digitalRead(harpButtonPin);
   buttonStateA = digitalRead(axeButtonPin);
+  buttonStateJ = digitalRead(jackButtonPin);
 
   //Serial.println(buttonStateC);
   if (buttonStateC != prevButtonStateC) {
@@ -118,8 +127,6 @@ void StateChangeDetect() {
         isFlippedC = false;
       }
   
-    } else {
-      //chill ig
     }
   }
   
@@ -131,11 +138,9 @@ void StateChangeDetect() {
   if (buttonStateB != prevButtonStateB) {
     if (buttonStateB == HIGH) {
       if (isFlippedB) {
-        beanstalkServo.write(0);
+        beanstalkServo.write(15);
         isFlippedB = false;
       }
-    } else {
-      //chill ig
     }
   }
 
@@ -146,21 +151,19 @@ void StateChangeDetect() {
   if (buttonStateH != prevButtonStateH) {
     if (buttonStateH == HIGH) {
       // FOR GIANT DROP ActivateServo(myservo, buttonPin, 0, 90);
-      if (!isFlippedB) {
+      if (!isFlippedH) {
         familyServo.write(180);
-        isFlippedB = true;
-      } else if(isFlippedB) {
+        isFlippedH = true;
+      } else if(isFlippedH) {
         familyServo.write(0);
-        isFlippedB = false;
+        isFlippedH = false;
       }
-    } else {
-      //chill ig
     }
   }
 
 
   // State change detection AXE
-  //Serial.println(buttonStateA);
+  // Lowers the beanstalk, releases the fallen giant from behind the giant's house, and turns off the giant silhouette led.
   if (buttonStateA != prevButtonStateA) {
     if (buttonStateA == HIGH) {
       // FOR GIANT DROP ActivateServo(myservo, buttonPin, 0, 90);
@@ -169,6 +172,9 @@ void StateChangeDetect() {
         isFlippedB = true;
       }
 
+      digitalWrite(ledPinGiant, LOW);
+
+      // Giant fall
       if (!isFlippedG) {
         giantServo.write(90);
         isFlippedG = true;
@@ -176,8 +182,15 @@ void StateChangeDetect() {
         giantServo.write(180);
         isFlippedG = false;
       }
-    } else {
-      //chill ig
+    }
+  }
+
+  // Jack placed in the house lets the fefifofum pad activate
+  if (buttonStateJ != prevButtonStateJ) {
+    if (buttonStateJ == HIGH) {
+      if(!isFlippedJ) {
+        canFeFiFoFum = true;
+      }
     }
   }
 
@@ -185,4 +198,5 @@ void StateChangeDetect() {
   prevButtonStateB = buttonStateB;
   prevButtonStateH = buttonStateH;
   prevButtonStateA = buttonStateA;
+  prevButtonStateJ = buttonStateJ;
 }
