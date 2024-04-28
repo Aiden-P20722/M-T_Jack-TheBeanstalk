@@ -5,13 +5,16 @@ Servo beanstalkServo;
 Servo familyServo;
 Servo giantServo;
 
+//These are used for the copper tape switches, connected by BLUE wires.
 const int cowButtonPin = 13;
 const int harpButtonPin = 11;
 const int beansButtonPin = 2;
 const int jackButtonPin = 7;
 const int axeButtonPin = 5;
 
-bool canFeFiFoFum; // Boolean that assures players cannot activate the giant stomping early
+//These bools make it so the switches stay in each position with a press and release, rather
+//than returning to their default state when the switch is on LOW.
+bool canFeFiFoFum; // Boolean that assures players cannot activate the giant stomping early. 
 bool isFlippedC; // cow
 bool isFlippedH; // harp
 bool isFlippedB; // beans
@@ -20,19 +23,19 @@ bool isFlippedJ; // jack in the giant's house
 bool beanStalkUp;
 
 
-// state change
+// state change COW
 int buttonStateC = 0;
 int prevButtonStateC = 0;
-// state change
+// state change HARP
 int buttonStateH = 0;
 int prevButtonStateH = 0;
-// state change
+// state change BEANS
 int buttonStateB = 0;
 int prevButtonStateB = 0;
-// state change
+// state change JACK
 int buttonStateJ = 0;
 int prevButtonStateJ = 0;
-// state change
+// state change AXE
 int buttonStateA = 0;
 int prevButtonStateA = 0;
 
@@ -40,9 +43,9 @@ int prevButtonStateA = 0;
 int sensorVal;
 const int sensorPin=A0;
 
-const int ledPinSlam = 4; // led indicating the table slam should be done
-const int ledPinGiant = 8; // led revealing the giant's silhouette
-const int ledPinHarp = 9; // led for golden shine on harp
+const int ledPinSlam = 4; // led indicating the table slam should be done, green on the right side of the enclosure.
+const int ledPinGiant = 8; // led revealing the giant's silhouette, within the giant's house.
+const int ledPinHarp = 9; // led for golden shine on harp, within the giant's house.
 
 void setup() {
   merchantServo.attach(12); // Pin that servo is attached to
@@ -60,13 +63,15 @@ void setup() {
   pinMode(ledPinGiant,OUTPUT);
   pinMode(ledPinHarp,OUTPUT);
 
+  //Sets all of the button bools to false as they have not been activated yet.
   isFlippedC = false;
   isFlippedH = false;
   isFlippedB = true;
   isFlippedG = false;
   isFlippedJ = false;
 
-  canFeFiFoFum = false; // Starts false, make true when jack reaches the giant house
+  canFeFiFoFum = false; // Starts false, make true when jack is placed on the switch in the giant's house.
+  //These servo writes set the servos to the proper starting positions.
   beanstalkServo.write(180);
   familyServo.write(180);
   merchantServo.write(0);
@@ -82,43 +87,27 @@ void loop() {
 
   if(canFeFiFoFum) {
     digitalWrite(ledPinSlam, HIGH);
-    if(sensorVal != 0) {
-      Serial.println(sensorVal);
-    }
+
     if(sensorVal > 18 && !isFlippedG) {
       digitalWrite(ledPinGiant, HIGH);
     }
   }
 
+  //Checks for copper tape switches being pressed every frame.
   StateChangeDetect();
 }
 
-/*
-// This method allows for any servo to be moved, passing any differences in the servos as parameters.
-void ActivateServo(Servo servo, int goToAngle, int restAngle, bool isFlipped) {
-  if (!isFlipped) {
-    servo.write(goToAngle);
-    isFlipped = true;
-  } else if(isFlipped) {
-    servo.write(restAngle);
-    isFlipped = false;
-  }
-}
-*/
-
-//Servo myservo, int inputPin, int goToAngle, int restAngle, bool isFlipped
 void StateChangeDetect() {
-  // State change detection COW
+  //Reads in the copper tape switch state
   buttonStateC = digitalRead(cowButtonPin);
   buttonStateB = digitalRead(beansButtonPin);
   buttonStateH = digitalRead(harpButtonPin);
   buttonStateA = digitalRead(axeButtonPin);
   buttonStateJ = digitalRead(jackButtonPin);
 
-  //Serial.println(buttonStateC);
+  // Flips the merchant when the cow is placed on the switch
   if (buttonStateC != prevButtonStateC) {
     if (buttonStateC == HIGH) {
-      // FOR GIANT DROP ActivateServo(myservo, buttonPin, 0, 90);
       if (!isFlippedC) {
         merchantServo.write(180);
         isFlippedC = true;
@@ -133,8 +122,7 @@ void StateChangeDetect() {
 
 
   // State change detection BEANSTALK
-  
-  //Serial.println(buttonStateB);
+  // Raises the beanstalk when the beans are placed on the switch
   if (buttonStateB != prevButtonStateB) {
     if (buttonStateB == HIGH) {
       if (isFlippedB) {
@@ -146,11 +134,9 @@ void StateChangeDetect() {
 
 
   // State change detection FAMILY
-  
-  //Serial.println(buttonStateH);
+  // Flips the family and table in Jack's house when the harp is placed on the switch
   if (buttonStateH != prevButtonStateH) {
     if (buttonStateH == HIGH) {
-      // FOR GIANT DROP ActivateServo(myservo, buttonPin, 0, 90);
       if (!isFlippedH) {
         familyServo.write(180);
         isFlippedH = true;
@@ -163,10 +149,10 @@ void StateChangeDetect() {
 
 
   // State change detection AXE
-  // Lowers the beanstalk, releases the fallen giant from behind the giant's house, and turns off the giant silhouette led.
+  // Lowers the beanstalk, releases the fallen giant from behind the giant's house, and turns off the giant silhouette led
+  // when jack is placed on the switch in the giant's house.
   if (buttonStateA != prevButtonStateA) {
     if (buttonStateA == HIGH) {
-      // FOR GIANT DROP ActivateServo(myservo, buttonPin, 0, 90);
       if(!isFlippedB) {
         beanstalkServo.write(180);
         isFlippedB = true;
@@ -193,7 +179,7 @@ void StateChangeDetect() {
       }
     }
   }
-
+  //Sets the previous state to the current state
   prevButtonStateC = buttonStateC;
   prevButtonStateB = buttonStateB;
   prevButtonStateH = buttonStateH;
